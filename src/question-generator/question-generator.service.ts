@@ -1,4 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { ErrorResponse } from 'src/common/error-response';
+import { QuestionPrompts } from 'src/promt-template/question.promt';
 import { ClaudeService } from '../claude/claude.service';
 import { GenerateQuestionDto } from './dto/generate-question.dto';
 import { QuestionResponseDto } from './dto/question-response.dto';
@@ -11,41 +13,23 @@ export class QuestionGeneratorService {
 
   async generateSingleChoiceQuestion(
     dto: GenerateQuestionDto,
-  ): Promise<QuestionResponseDto> {
+  ): Promise<QuestionResponseDto | ErrorResponse> {
     const { topic, audience = 'general', context = '', choiceCount = 4 } = dto;
 
-    // Tạo prompt để gửi đến Claude API
-    const prompt = `
-Hãy tạo một câu hỏi trắc nghiệm dạng Single Choice (chọn một đáp án đúng) về chủ đề: "${topic}".
-${context ? `Bối cảnh thêm: ${context}` : ''}
-${audience ? `Đối tượng người dùng: ${audience}` : ''}
-
-Yêu cầu:
-1. Tạo một câu hỏi rõ ràng, ngắn gọn
-2. Tạo chính xác ${choiceCount} lựa chọn trả lời
-3. Các lựa chọn phải rõ ràng, không mơ hồ
-4. Một trong các lựa chọn phải là đáp án đúng
-
-Trả về kết quả dưới định dạng JSON với cấu trúc như sau:
-{
-  "question": "Nội dung câu hỏi",
-  "choices": ["Lựa chọn 1", "Lựa chọn 2", ...]
-}
-
-Chỉ trả về duy nhất đoạn JSON, không kèm theo bất kỳ text nào khác.
-`;
+    const prompt = QuestionPrompts.getSingleChoicePrompt(
+      topic,
+      audience,
+      context,
+      choiceCount,
+    );
 
     try {
       const response = await this.claudeService.generateCompletion(prompt);
       const content = response.content[0].text;
 
-      // Trích xuất JSON từ phản hồi
       const jsonMatch = content.match(/\{[\s\S]*\}/);
       if (!jsonMatch) {
-        return {
-          question: 'Không thể tạo câu hỏi. Vui lòng thử lại.',
-          choices: ['Lựa chọn 1', 'Lựa chọn 2', 'Lựa chọn 3', 'Lựa chọn 4'],
-        };
+        return new ErrorResponse('Không thể tạo câu hỏi. Vui lòng thử lại.');
       }
 
       try {
@@ -60,17 +44,11 @@ Chỉ trả về duy nhất đoạn JSON, không kèm theo bất kỳ text nào 
         this.logger.error(
           `Failed to parse Claude response: ${parseError.message}`,
         );
-        return {
-          question: 'Lỗi khi xử lý dữ liệu từ AI',
-          choices: ['Lựa chọn 1', 'Lựa chọn 2', 'Lựa chọn 3', 'Lựa chọn 4'],
-        };
+        return new ErrorResponse('Lỗi khi xử lý dữ liệu từ AI');
       }
     } catch (error) {
       this.logger.error(`Error generating question: ${error.message}`);
-      return {
-        question: 'Lỗi khi gọi API Claude',
-        choices: ['Lựa chọn 1', 'Lựa chọn 2', 'Lựa chọn 3', 'Lựa chọn 4'],
-      };
+      return new ErrorResponse('Lỗi khi gọi API Claude');
     }
   }
 }

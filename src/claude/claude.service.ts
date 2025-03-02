@@ -9,6 +9,9 @@ export class ClaudeService {
   private readonly apiKey: string | undefined;
   private readonly apiUrl = 'https://api.anthropic.com/v1/messages';
   
+  private readonly RR_CLAUDE_MODEL = 'claude-3-haiku-20240307';
+  private readonly PRO_CLAUDE_MODEL = 'claude-3-haiku-20240307';
+
   constructor(
     private configService: ConfigService,
     private httpService: HttpService,
@@ -27,7 +30,7 @@ export class ClaudeService {
     };
 
     const payload = {
-      model: 'claude-3-haiku-20240307',
+      model: this.RR_CLAUDE_MODEL,
       max_tokens: 1024,
       messages: [
         { role: 'user', content: prompt }
