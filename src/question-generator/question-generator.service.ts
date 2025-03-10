@@ -14,14 +14,9 @@ export class QuestionGeneratorService {
   async generateSingleChoiceQuestion(
     dto: GenerateQuestionDto,
   ): Promise<QuestionResponseDto | ErrorResponse> {
-    const { topic, audience = 'general', context = '', choiceCount = 4 } = dto;
+    const { context = '' } = dto;
 
-    const prompt = QuestionPrompts.getSingleChoicePrompt(
-      topic,
-      audience,
-      context,
-      choiceCount,
-    );
+    const prompt = QuestionPrompts.getSingleChoicePrompt(context);
 
     try {
       const response = await this.claudeService.generateCompletion(prompt);

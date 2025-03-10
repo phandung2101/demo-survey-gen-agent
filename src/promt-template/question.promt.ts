@@ -1,56 +1,43 @@
 export class QuestionPrompts {
-  static getSingleChoicePrompt(
-    topic: string,
-    audience: string = 'general',
-    context: string = '',
-    choiceCount: number = 4,
-  ): string {
+  static getSingleChoicePrompt(userContext: string = ''): string {
     return `
-Hãy tạo một câu hỏi trắc nghiệm dạng Single Choice (chọn một đáp án đúng) về chủ đề: "${topic}".
-${context ? `Bối cảnh thêm: ${context}` : ''}
-${audience ? `Đối tượng người dùng: ${audience}` : ''}
+Please create a Single Choice quiz question.
+${userContext ? `User context: ${userContext}` : ''}
 
-Yêu cầu:
-1. Tạo một câu hỏi rõ ràng, ngắn gọn
-2. Tạo chính xác ${choiceCount} lựa chọn trả lời
-3. Các lựa chọn phải rõ ràng, không mơ hồ
-4. Một trong các lựa chọn phải là đáp án đúng
+Requirements:
+1. Create a clear, concise question
+2. Create between 2-7 answer choices (around 4 is ideal)
+3. Choices must be clear, not ambiguous
+4. If the user context indicates a specific language (e.g., Korean), create the question in that language or in English
 
-Trả về kết quả dưới định dạng JSON với cấu trúc như sau:
+Return the result in JSON format with the following structure:
 {
-  "question": "Nội dung câu hỏi",
-  "choices": ["Lựa chọn 1", "Lựa chọn 2", ...]
+  "question": "Question content",
+  "choices": ["Choice 1", "Choice 2", ...]
 }
 
-Chỉ trả về duy nhất đoạn JSON, không kèm theo bất kỳ text nào khác.
+Return only the JSON, without any additional text.
 `;
   }
 
-  static getMultipleChoicePrompt(
-    topic: string,
-    audience: string = 'general',
-    context: string = '',
-    choiceCount: number = 4,
-  ): string {
+  static getMultipleChoicePrompt(userContext: string = ''): string {
     return `
-Hãy tạo một câu hỏi trắc nghiệm dạng Multiple Choice (có thể chọn nhiều đáp án đúng) về chủ đề: "${topic}".
-${context ? `Bối cảnh thêm: ${context}` : ''}
-${audience ? `Đối tượng người dùng: ${audience}` : ''}
+Please create a Multiple Choice quiz question.
+${userContext ? `User context: ${userContext}` : ''}
 
-Yêu cầu:
-1. Tạo một câu hỏi rõ ràng, ngắn gọn
-2. Tạo chính xác ${choiceCount} lựa chọn trả lời
-3. Các lựa chọn phải rõ ràng, không mơ hồ
-4. Ít nhất 2 lựa chọn phải là đáp án đúng
+Requirements:
+1. Create a clear, concise question
+2. Create several answer choices
+3. Choices must be clear, not ambiguous
+4. If the user context indicates a specific language (e.g., Korean), create the question in that language or in English
 
-Trả về kết quả dưới định dạng JSON với cấu trúc như sau:
+Return the result in JSON format with the following structure:
 {
-  "question": "Nội dung câu hỏi",
-  "choices": ["Lựa chọn 1", "Lựa chọn 2", ...],
-  "correctAnswers": [0, 2]
+  "question": "Question content",
+  "choices": ["Choice 1", "Choice 2", ..."]
 }
 
-Chỉ trả về duy nhất đoạn JSON, không kèm theo bất kỳ text nào khác.
+Return only the JSON, without any additional text.
 `;
   }
 }
